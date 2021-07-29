@@ -140,6 +140,7 @@ def mean_shift(points, h=2, MIN_DISTANCE=0.000001):
 def create_data_set(*cores):
     ds=list();
     for x0,y0,z0 in cores:
+        
         x = np.random.normal(x0, 0.1+np.random.random()/3, z0)
         y = np.random.normal(y0, 0.1+np.random.random()/3, z0)
         ds.append(np.stack((x,y), axis=1))
