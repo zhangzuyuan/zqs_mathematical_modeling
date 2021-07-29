@@ -1,3 +1,6 @@
+# 初始质心的选取对聚类有很大影响，而且需要自己设定聚类数量
+
+
 import numpy as np
 import time
 import matplotlib.pyplot as plt
