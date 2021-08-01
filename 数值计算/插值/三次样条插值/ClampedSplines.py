@@ -10,10 +10,10 @@ from numpy import *
 #输入n;x0,x1,...,xn;a0=f(x0),a1=f(x1),...,an=f(xn);FPO=f'(x0);FPN=f'(xn);
 #输出a_j,b_j,c_j,d_j(j=0,1,...,n-1)
 #S(x)=S_j(x)=a_j+b_j*(x-x_j)+c_j*(x-x_j)**2+d_j*(x-x_j)**3;(x_j<=x<=x_j+1)
-def NaturalCubicSpline(n,x,a,FPO,FPN):
+def ClampedCubicSpline(n,x,a,FPO,FPN):
     h=np.zeros(n);
     ans=np.zeros([n,4]);
-    alpha=np.zeros([n,1]);
+    alpha=np.zeros([n+1,1]);
     l=np.zeros(n+1);
     u=np.zeros(n+1);
     z=np.zeros(n+1);
@@ -22,18 +22,20 @@ def NaturalCubicSpline(n,x,a,FPO,FPN):
     d=np.zeros(n+1);
     for i in range(n):
         h[i]=x[i+1]-x[i];
+    alpha[0]=3*(a[1]-a[0])/h[0] - 3*FPO;
+    alpha[n]=3*FPN-3*(a[n]-a[n-1])/h[n-1];
     for i in range(1,n):
         alpha[i]=( (3/h[i])*(a[i+1]-a[i]) )-( (3/h[i-1])*(a[i]-a[i-1]) );
-    l[0]=1;
-    u[0]=0;
-    z[0]=0;
+    l[0]=2*h[0];
+    u[0]=0.5;
+    z[0]=alpha[0]/l[0];
     for i in range(1,n):
         l[i]=2*(x[i+1]-x[i-1])-h[i-1]*u[i-1];
         u[i]=h[i]/l[i];
         z[i]=(alpha[i]-h[i-1]*z[i-1])/l[i];
-    l[n]=1;
-    z[n]=0;
-    c[n]=0;
+    l[n]=h[n-1]*(2-u[n-1]);
+    z[n]=(alpha[n]-h[n-1]*z[n-1])/l[n];
+    c[n]=z[n];
     for j in range(n-1,-1,-1):
         c[j]=z[j]-u[j]*c[j+1];
         b[j]=(a[j+1]-a[j])/h[j] - h[j]*(c[j+1]+2*c[j])/3;
@@ -78,6 +80,6 @@ def draw(X,ans):
 
 if __name__ == "__main__":
     x,a=get_data();
-    ans=NaturalCubicSpline(20,x,a);
+    ans=ClampedCubicSpline(20,x,a,1,1);
     draw(x,ans);
     print(ans);
